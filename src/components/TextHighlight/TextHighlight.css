@@ -1,0 +1,18 @@
+.text-highlight {
+  min-height: 60vh;
+  padding: 0px 80px;
+  display: flex;
+  align-items: center;
+}
+
+.text-highlight p {
+  font-size: 42px;
+  line-height: 1.4;
+  max-width: 900px;
+  color: white;
+}
+
+.text-highlight span {
+  opacity: 0.2; /* initial dim */
+  transition: opacity 0.2s linear;
+}

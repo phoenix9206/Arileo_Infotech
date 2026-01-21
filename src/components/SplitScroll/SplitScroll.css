@@ -1,26 +1,22 @@
-.scroll-section {
-  min-height: 100vh;
-  padding: 0px 80px;
+.split-scroll {
+  min-height: 50vh;
   display: flex;
   align-items: center;
+  padding: 0px 80px;
   gap: 60px;
 }
 
-.scroll-section.reverse {
-  flex-direction: row-reverse;
-}
-
 /* 40% side */
-.scroll-left {
+.split-left {
   flex: 4;
 }
 
-.scroll-left h2 {
+.split-left h2 {
   font-size: 36px;
   line-height: 1.2;
 }
 
-.scroll-left p {
+.split-left p {
   margin-top: 16px;
   font-size: 16px;
   opacity: 0.7;
@@ -28,7 +24,7 @@
 }
 
 /* 60% side */
-.scroll-right {
+.split-right {
   flex: 6;
   display: flex;
   justify-content: center;
@@ -40,4 +36,8 @@
   height: 320px;
   border-radius: 16px;
   background: linear-gradient(135deg, #222, #111);
+}
+
+.split-scroll.reverse {
+  flex-direction: row-reverse;
 }

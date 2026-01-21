@@ -1,6 +1,8 @@
 import Navbar from "../components/Navbar/Navbar";
 import Hero from "../components/Hero/Hero";
-import ScrollSection from "../components/ScrollSection/ScrollSection";
+import SplitScroll from "../components/SplitScroll/SplitScroll";
+import TextHighlight from "../components/TextHighlight/TextHighlight";
+import ShapeTextSync from "../components/ShapeTextSync/ShapeTextSync";
 
 export default function Home() {
   return (
@@ -8,8 +10,12 @@ export default function Home() {
       <Navbar />
       <Hero />
 
-      <ScrollSection />
-      <ScrollSection reverse />
+      <SplitScroll />
+      <SplitScroll reverse />
+
+      <TextHighlight />
+
+      <ShapeTextSync />
     </>
   );
 }
