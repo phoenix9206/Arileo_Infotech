@@ -2,8 +2,8 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 8px;
-  height: 8px;
+  width: 15px;
+  height: 15px;
   background: white;
   border-radius: 50%;
   pointer-events: none; /* VERY IMPORTANT */

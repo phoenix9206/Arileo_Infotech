@@ -1,0 +1,35 @@
+.globe-layer {
+  position: absolute;
+  left: 50%;
+  bottom: -300px; /* pushes globe under next section */
+  transform: translateX(-50%);
+
+  width: 800px;
+  height: 800px;
+  border-radius: 50%;
+
+  background: radial-gradient(circle at center, #555 0%, #111 60%);
+  background-size: 200% 100%;
+  background-position-x: var(--bg-offset, 0%);
+
+  opacity: 0.6;
+  cursor: grab;
+
+  animation: autoSpin 25s linear infinite;
+  z-index: 1;
+}
+
+.globe-layer:active {
+  cursor: grabbing;
+  animation-play-state: paused;
+}
+
+/* AUTO ROTATION */
+@keyframes autoSpin {
+  from {
+    background-position-x: 0%;
+  }
+  to {
+    background-position-x: 100%;
+  }
+}

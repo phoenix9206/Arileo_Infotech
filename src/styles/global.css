@@ -10,3 +10,22 @@ body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   overflow-x: hidden;
 }
+
+.earth-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* Content above earth */
+section,
+nav {
+  position: relative;
+  z-index: 5;
+}
+
+/* Section that hides the bottom of earth */
+.split-scroll {
+  background: #0b0b0b;
+}

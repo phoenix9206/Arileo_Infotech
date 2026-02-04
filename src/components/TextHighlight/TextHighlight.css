@@ -1,8 +1,9 @@
 .text-highlight {
   min-height: 60vh;
-  padding: 0px 80px;
+  padding: 50px;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .text-highlight p {

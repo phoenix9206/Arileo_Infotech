@@ -3,7 +3,7 @@ import { useRef } from "react";
 import "./TextHighlight.css";
 
 const TEXT =
-  "We create digital experiences that help brands stand out in a connected world.";
+  "We create digital experiences that help brands stand out in a connected worlddsghasgusagflkj sg a  sd gsakd sd gas dkh asiyd l saidgslugaskhcyiilu ags is sgdd sfgskfgdyfgf fg ask  uyskjdhsa d ouh jdh sou asd .";
 
 export default function TextHighlight() {
   const containerRef = useRef(null);

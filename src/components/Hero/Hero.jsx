@@ -3,7 +3,7 @@ import "./Hero.css";
 export default function Hero() {
   return (
     <section className="hero">
-      <div className="globe"></div>
+      {/* <div className="globe"></div> */}
 
       <div className="hero-content">
         <h1>Creating Brand & Digital Solutions</h1>
