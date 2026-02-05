@@ -419,7 +419,7 @@ export default function DottedEarth() {
       eventPrefix="client">
         <ambientLight intensity={0.6} />
 
-        <DraggableEarth scale={1.15}>
+        <DraggableEarth scale={0.9}> // Make the earth bigger or smaller in size
           <LandDotsFromGeoJSON />
           <EarthBorders />
           <LatLongLines />
