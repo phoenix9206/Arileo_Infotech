@@ -45,10 +45,10 @@
 
 .nav-right button {
   padding: 10px 18px;
-  border-radius: 20px;
+  border-radius: 10px;
   border: none;
-  background: white;
-  color: black;
+  background: linear-gradient(180deg, var(--token-f951c3a8-aa43-4825-aa75-915aa92c20d1, rgb(79, 26, 214)) 0%, rgb(128, 89, 227) 100%);
+  color: white;
   font-size: 13px;
   cursor: pointer;
 }

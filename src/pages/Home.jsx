@@ -7,7 +7,7 @@ import ShapeTextSync from "../components/ShapeTextSync/ShapeTextSync";
 export default function Home() {
   return (
     <>
-      <Navbar />
+      {/* <Navbar />
       <Hero />
 
       <SplitScroll />
@@ -15,7 +15,7 @@ export default function Home() {
 
       <TextHighlight />
 
-      <ShapeTextSync />
+      <ShapeTextSync /> */}
     </>
   );
 }
