@@ -1,534 +1,34 @@
-// import { Canvas, useFrame } from "@react-three/fiber";
-// import { useMemo, useRef } from "react";
-// import * as THREE from "three";
-
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import * as THREE from "three";
 
 
 /* ------------------ DOTS ------------------ */
-// function EarthDots() {
-//   const pointsRef = useRef();
 
-//   const geometry = useMemo(() => {
-//     const g = new THREE.BufferGeometry();
-//     const points = [];
 
-//     const radius = 2.6;
-//     const latSegments = 90;
-//     const lonSegments = 180;
+const TORONTO_LAT = 43.6532;
+const TORONTO_LON = -79.3832;
+const MASS = 0.08;     // lower = heavier
+const MAX_VELOCITY = 0.05; // safety clamp
 
-//     for (let i = 0; i < latSegments; i++) {
-//       const theta = (i / latSegments) * Math.PI;
-
-//       for (let j = 0; j < lonSegments; j++) {
-//         const phi = (j / lonSegments) * Math.PI * 2;
-
-//         const x = radius * Math.sin(theta) * Math.cos(phi);
-//         const y = radius * Math.cos(theta);
-//         const z = radius * Math.sin(theta) * Math.sin(phi);
-
-//         points.push(x, y, z);
-//       }
-//     }
-
-//     g.setAttribute(
-//       "position",
-//       new THREE.Float32BufferAttribute(points, 3)
-//     );
-
-//     return g;
-//   }, []);
-
-//   useFrame((_, delta) => {
-//     pointsRef.current.rotation.y += delta * 0.08;
-//   });
-
-//   return (
-//     <points ref={pointsRef} geometry={geometry}>
-//       <pointsMaterial
-//         size={0.025}
-//         color="#ffffff"
-//         opacity={0.8}
-//         transparent
-//       />
-//     </points>
-//   );
-// }
-
-
-// function DraggableEarth({ children, scale = 1.20 }) {
-//   const groupRef = useRef();
-//   const { gl } = useThree();
-
-//   const isDragging = useRef(false);
-//   const last = useRef({ x: 0, y: 0 });
-//   const velocity = useRef({ x: 0, y: 0 });
-
-// //   useFrame(() => {
-// //     if (!isDragging.current) {
-// //       // inertia
-// //       velocity.current.x *= 0.95;
-// //       velocity.current.y *= 0.95;
-
-// //       groupRef.current.rotation.y += velocity.current.x;
-// //       groupRef.current.rotation.x += velocity.current.y;
-// //     }
-
-// //     // clamp vertical rotation (no flip)
-// //     groupRef.current.rotation.x = THREE.MathUtils.clamp(
-// //       groupRef.current.rotation.x,
-// //       -Math.PI / 2,
-// //       Math.PI / 2
-// //     );
-// //   });
-
-//     useFrame(() => {
-//         // inertia
-//         velocity.current.x *= 0.94;
-//         velocity.current.y *= 0.94;
-
-//         groupRef.current.rotation.y += velocity.current.x;
-//         groupRef.current.rotation.x += velocity.current.y;
-
-//         // clamp vertical rotation
-//         groupRef.current.rotation.x = THREE.MathUtils.clamp(
-//             groupRef.current.rotation.x,
-//             -Math.PI / 2 + 0.1,
-//             Math.PI / 2 - 0.1
-//         );
-//     });
-
-
-//   const onPointerDown = (e) => {
-//     isDragging.current = true;
-//     velocity.current.x = 0;
-//     velocity.current.y = 0;
-//     last.current = { x: e.clientX, y: e.clientY };
-//   };
-
-//   const onPointerMove = (e) => {
-//     if (!isDragging.current) return;
-
-//     const dx = e.clientX - last.current.x;
-//     const dy = e.clientY - last.current.y;
-
-//     const rotSpeed = 0.005;
-
-//     velocity.current.x = dx * rotSpeed;
-//     velocity.current.y = dy * rotSpeed;
-
-//     groupRef.current.rotation.y += velocity.current.x;
-//     groupRef.current.rotation.x += velocity.current.y;
-
-//     last.current = { x: e.clientX, y: e.clientY };
-//   };
-
-//   const onPointerUp = () => {
-//     isDragging.current = false;
-//   };
-
-//   return (
-//     <group
-//       ref={groupRef}
-//       scale={scale}
-//       onPointerDown={onPointerDown}
-//       onPointerMove={onPointerMove}
-//       onPointerUp={onPointerUp}
-//       onPointerLeave={onPointerUp}
-//     >
-//       {children}
-//     </group>
-//   );
-// }
-
-// function DraggableEarth({ children, scale = 1.3 }) {
-//   const groupRef = useRef();
-//   const { size } = useThree();
-
-//   const dragging = useRef(false);
-//   const lastVec = useRef(new THREE.Vector3());
-//   const rotationQuat = useRef(new THREE.Quaternion());
-
-//   // Project mouse to virtual sphere
-//   const getArcballVector = (x, y) => {
-//     const v = new THREE.Vector3(
-//       (2 * x - size.width) / size.width,
-//       (size.height - 2 * y) / size.height,
-//       0
-//     );
-
-//     const length = v.x * v.x + v.y * v.y;
-
-//     if (length <= 1) {
-//       v.z = Math.sqrt(1 - length);
-//     } else {
-//       v.normalize();
-//     }
-
-//     return v;
-//   };
-
-//   const onPointerDown = (e) => {
-//     console.log("pointer down");
-
-//     dragging.current = true;
-//     lastVec.current = getArcballVector(e.clientX, e.clientY);
-//   };
-
-//   const onPointerMove = (e) => {
-//     if (!dragging.current) return;
-
-//     const currVec = getArcballVector(e.clientX, e.clientY);
-
-//     const axis = new THREE.Vector3()
-//       .crossVectors(lastVec.current, currVec)
-//       .normalize();
-
-//     const angle = Math.acos(
-//       Math.min(1, lastVec.current.dot(currVec))
-//     );
-
-//     if (!isNaN(angle) && axis.lengthSq() > 0) {
-//       rotationQuat.current.setFromAxisAngle(axis, angle);
-//       groupRef.current.quaternion.premultiply(rotationQuat.current);
-//     }
-
-//     lastVec.current = currVec;
-//   };
-
-//   const onPointerUp = () => {
-//     dragging.current = false;
-//   };
-
-//   return (
-//     <group
-//       ref={groupRef}
-//       scale={scale}
-//       onPointerDown={onPointerDown}
-//       onPointerMove={onPointerMove}
-//       onPointerUp={onPointerUp}
-//       onPointerLeave={onPointerUp}
-//     >
-//       {children}
-//     </group>
-//   );
-// }
-
-
-
-// function DraggableEarth({ children, scale = 1.3 }) {
-//   const groupRef = useRef();
-//   const { size } = useThree();
-
-//   const dragging = useRef(false);
-//   const lastVec = useRef(new THREE.Vector3());
-
-//   const projectOnSphere = (x, y) => {
-//     const v = new THREE.Vector3(
-//       (2 * x - size.width) / size.width,
-//       (size.height - 2 * y) / size.height,
-//       0
-//     );
-
-//     const len = v.lengthSq();
-//     if (len <= 1) {
-//       v.z = Math.sqrt(1 - len);
-//     } else {
-//       v.normalize();
-//     }
-
-//     return v;
-//   };
-
-//   const onPointerDown = (e) => {
-//     e.stopPropagation();
-//     dragging.current = true;
-//     lastVec.current = projectOnSphere(e.clientX, e.clientY);
-//   };
-
-//   const onPointerMove = (e) => {
-//     if (!dragging.current) return;
-
-//     const currVec = projectOnSphere(e.clientX, e.clientY);
-
-//     const axis = new THREE.Vector3()
-//       .crossVectors(lastVec.current, currVec)
-//       .normalize();
-
-//     const angle = Math.acos(
-//       Math.min(1, lastVec.current.dot(currVec))
-//     );
-
-//     if (axis.lengthSq() > 0 && !isNaN(angle)) {
-//       const quat = new THREE.Quaternion();
-//       quat.setFromAxisAngle(axis, angle);
-//       groupRef.current.quaternion.premultiply(quat);
-//     }
-
-//     lastVec.current = currVec;
-//   };
-
-//   const onPointerUp = () => {
-//     dragging.current = false;
-//   };
-
-//   return (
-//     <group
-//       ref={groupRef}
-//       scale={scale}
-//       onPointerDown={onPointerDown}
-//       onPointerMove={onPointerMove}
-//       onPointerUp={onPointerUp}
-//       onPointerLeave={onPointerUp}
-//     >
-//       {children}
-//     </group>
-//   );
-// }
-
-// function DraggableEarth({ children, scale = 1.15 }) {
-//   const groupRef = useRef();
-//   const { size } = useThree();
-
-//   const DRAG_SPEED = 3.0; // increase if still slow
-//   const DAMPING = 0.97;
-
-//   const dragging = useRef(false);
-//   const lastVec = useRef(new THREE.Vector3());
-//   const velocity = useRef(new THREE.Vector3());
-
-//   const projectOnSphere = (x, y) => {
-//     const v = new THREE.Vector3(
-//       (2 * x - size.width) / size.width,
-//       (size.height - 2 * y) / size.height,
-//       0
-//     );
-
-//     const len = v.lengthSq();
-//     if (len <= 1) v.z = Math.sqrt(1 - len);
-//     else v.normalize();
-
-//     return v;
-//   };
-
-//   useFrame(() => {
-//     if (!dragging.current) {
-//       // inertia
-//       velocity.current.multiplyScalar(DAMPING);
-
-//       const angle = velocity.current.length();
-//       if (angle > 0.00001) {
-//         const axis = velocity.current.clone().normalize();
-//         const quat = new THREE.Quaternion().setFromAxisAngle(axis, angle);
-//         groupRef.current.quaternion.premultiply(quat);
-//       }
-//     }
-//   });
-
-//   const onPointerDown = (e) => {
-//     e.stopPropagation();
-//     dragging.current = true;
-//     velocity.current.set(0, 0, 0);
-//     lastVec.current = projectOnSphere(e.clientX, e.clientY);
-//   };
-
-//   const onPointerMove = (e) => {
-//     if (!dragging.current) return;
-
-//     const currVec = projectOnSphere(e.clientX, e.clientY);
-
-//     const axis = new THREE.Vector3()
-//       .crossVectors(lastVec.current, currVec);
-
-//     const angle = Math.acos(
-//       Math.min(1, lastVec.current.dot(currVec)) * DRAG_SPEED
-//     );
-
-//     if (axis.lengthSq() > 0 && !isNaN(angle)) {
-//       axis.normalize();
-
-//       const quat = new THREE.Quaternion().setFromAxisAngle(axis, angle);
-//       groupRef.current.quaternion.premultiply(quat);
-
-//       // save velocity for inertia
-//       velocity.current.copy(axis).multiplyScalar(angle);
-//     }
-
-//     lastVec.current = currVec;
-//   };
-
-//   const onPointerUp = () => {
-//     dragging.current = false;
-//   };
-
-//   return (
-//     <group
-//       ref={groupRef}
-//       scale={scale}
-//       onPointerDown={onPointerDown}
-//       onPointerMove={onPointerMove}
-//       onPointerUp={onPointerUp}
-//       onPointerLeave={onPointerUp}
-//     >
-//       {children}
-//     </group>
-//   );
-// }
-
-// function DraggableEarth({ children, scale = 1.15 }) {
-//   const groupRef = useRef();
-//   const { size } = useThree();
-
-//   const AUTO_ROTATE_SPEED = 0.0006; // subtle, premium feel
-//   const IDLE_DELAY = 0.2;          // seconds before auto-spin resumes
-
-
-//   const DRAG_SPEED = 2.0;
-//   const DAMPING = 0.97;
-
-//   const dragging = useRef(false);
-//   const lastVec = useRef(new THREE.Vector3());
-//   const velocity = useRef(new THREE.Vector3());
-//   const lastInteractionTime = useRef(0);
-
-
-//   const projectOnSphere = (x, y) => {
-//     const v = new THREE.Vector3(
-//       (2 * x - size.width) / size.width,
-//       (size.height - 2 * y) / size.height,
-//       0
-//     );
-
-//     const len = v.lengthSq();
-//     if (len <= 1) v.z = Math.sqrt(1 - len);
-//     else v.normalize();
-
-//     return v;
-//   };
-
-//   // useFrame(() => {
-
-//   //   if (!dragging.current) {
-//   //     velocity.current.multiplyScalar(DAMPING);
-
-//   //     const angle = velocity.current.length();
-//   //     if (angle > 0.00001) {
-//   //       const axis = velocity.current.clone().normalize();
-//   //       const quat = new THREE.Quaternion().setFromAxisAngle(axis, angle);
-//   //       groupRef.current.quaternion.premultiply(quat);
-//   //     }
-//   //   }
-//   // });
-
-//   useFrame((_, delta) => {
-//   const now = performance.now();
-
-//   if (!dragging.current) {
-//     // inertia
-//     velocity.current.multiplyScalar(DAMPING);
-
-//     const angle = velocity.current.length();
-//     if (angle > 0.00001) {
-//       const axis = velocity.current.clone().normalize();
-//       const quat = new THREE.Quaternion().setFromAxisAngle(axis, angle);
-//       groupRef.current.quaternion.premultiply(quat);
-//     }
-
-//     // auto-rotate after idle
-//     if (
-//       angle < 0.00005 &&
-//       now - lastInteractionTime.current > IDLE_DELAY * 1000
-//     ) {
-//       // groupRef.current.rotation.y += AUTO_ROTATE_SPEED;
-//       const autoQuat = new THREE.Quaternion().setFromAxisAngle(
-//         new THREE.Vector3(0, 1, 0), // Y axis
-//         AUTO_ROTATE_SPEED
-//       );
-//       groupRef.current.quaternion.premultiply(autoQuat);
-//     }
-//   }
-// });
-
-
-
-//   const onPointerDown = (e) => {
-//     e.stopPropagation();
-//     dragging.current = true;
-//     velocity.current.set(0, 0, 0);
-//     lastInteractionTime.current = performance.now();
-//     lastVec.current = projectOnSphere(e.clientX, e.clientY);
-//   };
-
-//   const onPointerMove = (e) => {
-//     if (!dragging.current) return;
-
-//     const currVec = projectOnSphere(e.clientX, e.clientY);
-//     const axis = new THREE.Vector3().crossVectors(lastVec.current, currVec);
-
-//     const angle =
-//       Math.acos(Math.min(1, lastVec.current.dot(currVec))) * DRAG_SPEED;
-
-//     if (axis.lengthSq() > 0 && !isNaN(angle)) {
-//       axis.normalize();
-//       const quat = new THREE.Quaternion().setFromAxisAngle(axis, angle);
-//       groupRef.current.quaternion.premultiply(quat);
-//       velocity.current.copy(axis).multiplyScalar(angle);
-//     }
-
-//     lastVec.current = currVec;
-//   };
-
-//   const onPointerUp = () => {
-//     dragging.current = false;
-//     lastInteractionTime.current = performance.now();
-//   };
-
-//   return (
-//     <group ref={groupRef} scale={scale}>
-//       {/* 🔥 Invisible interaction sphere */}
-//       <mesh
-//         onPointerDown={onPointerDown}
-//         onPointerMove={onPointerMove}
-//         onPointerUp={onPointerUp}
-//         onPointerLeave={onPointerUp}
-//       >
-//         <sphereGeometry args={[2.8, 32, 32]} />
-//         {/* <meshBasicMaterial transparent opacity={0} /> */}
-//         <meshBasicMaterial
-//     transparent
-//     opacity={0}
-//     depthWrite={false}   // 🔥 IMPORTANT
-//   />
-//       </mesh>
-
-//       {/* Visible content */}
-//       {children}
-//     </group>
-//   );
-// }
 
 
 function TorontoSpot() {
-  const radius = 2.6; // slightly above Earth dots
+  const radius = 2.65;
 
-  const lat = THREE.MathUtils.degToRad(43.6532);   // Toronto latitude
-  const lon = THREE.MathUtils.degToRad(-79.3832);  // Toronto longitude (WEST = negative)
+  const lat = 43.6532;     // degrees
+  const lon = -79.3832;   // degrees (west = negative)
 
-  const position = [
-    radius * Math.cos(lat) * Math.cos(lon),
-    radius * Math.sin(lat),
-    radius * Math.cos(lat) * Math.sin(lon),
-  ];
+  const [x, y, z] = latLonToVec3(lat, lon, radius + 0.01);
 
   return (
-    <mesh position={position}>
-      <sphereGeometry args={[0.03, 16, 16]} />
+    <mesh position={[x, y, z]}>
+      <sphereGeometry args={[0.02, 16, 16]} />
       <meshBasicMaterial color="#1ea7ff" toneMapped={false} />
     </mesh>
   );
 }
+
 
 function LatLongLines() {
   const groupRef = useRef();
@@ -597,104 +97,207 @@ function LatLongLines() {
 }
 
 
-function DraggableEarth({ children, scale = 1.15 }) {
-  const groupRef = useRef();
-  const { size } = useThree();
 
-  const DRAG_SPEED = 0.2;
-  const DAMPING = 0.97;
-  const AUTO_ROTATE_SPEED = 0.0007;
-  const IDLE_DELAY = 1.2; // seconds
+function EarthBorders() {
+  const geometryRef = useRef();
 
-  const dragging = useRef(false);
-  const lastVec = useRef(new THREE.Vector3());
-  const velocity = useRef(new THREE.Vector3());
-  const lastInteractionTime = useRef(0);
+  useEffect(() => {
+    fetch("/data/coastlines.geojson")
+      .then((res) => res.json())
+      .then((data) => {
+        const positions = [];
+        const radius = 2.65;
 
-  const projectOnSphere = (x, y) => {
-    const v = new THREE.Vector3(
-      (2 * x - size.width) / size.width,
-      (size.height - 2 * y) / size.height,
-      0
-    );
+        data.features.forEach((feature) => {
+          const { type, coordinates } = feature.geometry;
 
-    const len = v.lengthSq();
-    if (len <= 1) v.z = Math.sqrt(1 - len);
-    else v.normalize();
+          const lines =
+            type === "LineString"
+              ? [coordinates]
+              : coordinates; // MultiLineString
 
-    return v;
-  };
+          lines.forEach((line) => {
+            for (let i = 0; i < line.length - 1; i++) {
+              const [lon1, lat1] = line[i];
+              const [lon2, lat2] = line[i + 1];
 
-  useFrame(() => {
-    if (!groupRef.current) return;
+              const p1 = latLonToVec3(lat1, lon1, radius);
+              const p2 = latLonToVec3(lat2, lon2, radius);
 
-    const now = performance.now();
+              positions.push(...p1, ...p2);
+            }
+          });
+        });
 
-    if (!dragging.current) {
-      // inertia
-      velocity.current.multiplyScalar(DAMPING);
-
-      const angle = velocity.current.length();
-      if (angle > 0.00001) {
-        const axis = velocity.current.clone().normalize();
-        const quat = new THREE.Quaternion().setFromAxisAngle(axis, angle);
-        groupRef.current.quaternion.premultiply(quat);
-      }
-
-      // 🌍 auto-spin around LOCAL up axis (this is the key)
-      if (
-        angle < 0.00005 &&
-        now - lastInteractionTime.current > IDLE_DELAY * 1000
-      ) {
-        const localUp = new THREE.Vector3(0, 1, 0)
-          .applyQuaternion(groupRef.current.quaternion)
-          .normalize();
-
-        const autoQuat = new THREE.Quaternion().setFromAxisAngle(
-          localUp,
-          AUTO_ROTATE_SPEED
+        geometryRef.current.setAttribute(
+          "position",
+          new THREE.Float32BufferAttribute(positions, 3)
         );
 
-        groupRef.current.quaternion.premultiply(autoQuat);
-      }
+        geometryRef.current.attributes.position.needsUpdate = true;
+      });
+  }, []);
+
+  return (
+    <lineSegments>
+      <bufferGeometry ref={geometryRef} />
+      <lineBasicMaterial
+        color="#ffffff"
+        opacity={0.8}
+        transparent
+      />
+    </lineSegments>
+  );
+}
+
+
+function latLonToVec3(lat, lon, radius) {
+  const phi = THREE.MathUtils.degToRad(90 - lat);
+  const theta = THREE.MathUtils.degToRad(lon + 180);
+
+  return [
+    -radius * Math.sin(phi) * Math.cos(theta),
+    radius * Math.cos(phi),
+    radius * Math.sin(phi) * Math.sin(theta),
+  ];
+}
+
+
+
+function DraggableEarth({ children, scale = 1.15 }) {
+  const groupRef = useRef();
+
+  const dragging = useRef(false);
+  const last = useRef({ x: 0, y: 0 });
+
+  // rotation state
+  const spin = useRef(0);
+  const tilt = useRef(0);
+
+  // angular velocity (THIS is the missing piece)
+  const velocitySpin = useRef(0);
+  const velocityTilt = useRef(0);
+
+  const initialized = useRef(false);
+
+  // tuning (these values matter)
+  const MAX_TILT = Math.PI / 2;
+  const DRAG_SPEED = 0.0025;      // mouse sensitivity
+  const FRICTION = 0.92;          // lower = longer inertia
+  const AUTO_SPIN_SPEED = 0.0035; // idle rotation
+  // const IDLE_DELAY = 0.1;         // ms before auto-spin
+
+  // const lastInteraction = useRef(performance.now());
+
+  // 🌍 initial orientation (Toronto in front)
+  useEffect(() => {
+    if (!initialized.current && groupRef.current) {
+      spin.current = -THREE.MathUtils.degToRad(TORONTO_LON + 90);
+      tilt.current = 0;
+
+      velocitySpin.current = 0;
+      velocityTilt.current = 0;
+
+      groupRef.current.rotation.set(0, spin.current, 0);
+      initialized.current = true;
     }
-  });
+  }, []);
 
   const onPointerDown = (e) => {
     e.stopPropagation();
     dragging.current = true;
-    velocity.current.set(0, 0, 0);
-    lastInteractionTime.current = performance.now();
-    lastVec.current = projectOnSphere(e.clientX, e.clientY);
+
+    last.current = { x: e.clientX, y: e.clientY };
+
+    // stop inertia when grabbing
+    velocitySpin.current = 0;
+    velocityTilt.current = 0;
+
+    lastInteraction.current = performance.now();
   };
 
-  const onPointerMove = (e) => {
-    if (!dragging.current) return;
 
-    const currVec = projectOnSphere(e.clientX, e.clientY);
-    const axis = new THREE.Vector3().crossVectors(lastVec.current, currVec);
+  
+const onPointerMove = (e) => {
+  if (!dragging.current) return;
 
-    const angle =
-      Math.acos(Math.min(1, lastVec.current.dot(currVec))) * DRAG_SPEED;
+  const dx = e.clientX - last.current.x;
+  const dy = e.clientY - last.current.y;
 
-    if (axis.lengthSq() > 0 && !isNaN(angle)) {
-      axis.normalize();
-      const quat = new THREE.Quaternion().setFromAxisAngle(axis, angle);
-      groupRef.current.quaternion.premultiply(quat);
-      velocity.current.copy(axis).multiplyScalar(angle);
-    }
+  const targetSpinVel = dx * DRAG_SPEED;
+  const targetTiltVel = dy * DRAG_SPEED;
 
-    lastVec.current = currVec;
-  };
+  // heavy feel (velocity easing)
+  velocitySpin.current +=
+    (targetSpinVel - velocitySpin.current) * MASS;
+
+  velocityTilt.current +=
+    (targetTiltVel - velocityTilt.current) * MASS;
+
+  // clamp safety
+  velocitySpin.current = THREE.MathUtils.clamp(
+    velocitySpin.current,
+    -MAX_VELOCITY,
+    MAX_VELOCITY
+  );
+
+  velocityTilt.current = THREE.MathUtils.clamp(
+    velocityTilt.current,
+    -MAX_VELOCITY,
+    MAX_VELOCITY
+  );
+
+  last.current = { x: e.clientX, y: e.clientY };
+};
+
 
   const onPointerUp = () => {
     dragging.current = false;
-    lastInteractionTime.current = performance.now();
+    lastInteraction.current = performance.now();
   };
+
+  // 🌍 physics loop
+
+
+useFrame((_, delta) => {
+  if (!groupRef.current) return;
+
+  // apply momentum always
+  spin.current += velocitySpin.current;
+  tilt.current += velocityTilt.current;
+
+  // clamp tilt
+  tilt.current = THREE.MathUtils.clamp(
+    tilt.current,
+    -MAX_TILT,
+    MAX_TILT
+  );
+
+  if (!dragging.current) {
+    const damping = Math.pow(FRICTION, delta * 60);
+    velocitySpin.current *= damping;
+    velocityTilt.current *= damping;
+
+
+
+    const AUTO_TARGET = AUTO_SPIN_SPEED;
+
+velocitySpin.current +=
+  (AUTO_TARGET - velocitySpin.current) * 0.03;
+
+  }
+
+  groupRef.current.rotation.set(
+    tilt.current,
+    spin.current,
+    0
+  );
+});
+
 
   return (
     <group ref={groupRef} scale={scale}>
-      {/* Invisible interaction sphere */}
+      {/* invisible interaction sphere */}
       <mesh
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -712,172 +315,99 @@ function DraggableEarth({ children, scale = 1.15 }) {
 
 
 
+function pointInPolygon(point, vs) {
+  const [x, y] = point;
+  let inside = false;
 
-// function EarthDots() {
-//   const pointsRef = useRef();
+  for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+    const xi = vs[i][0], yi = vs[i][1];
+    const xj = vs[j][0], yj = vs[j][1];
 
-//   const geometry = useMemo(() => {
-//     const g = new THREE.BufferGeometry();
-//     const points = [];
+    const intersect =
+      yi > y !== yj > y &&
+      x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
 
-//     const radius = 2.6;
-//     const img = new Image();
-//     img.src = "/textures/earth_mask.png";
+    if (intersect) inside = !inside;
+  }
 
-//     const canvas = document.createElement("canvas");
-//     const ctx = canvas.getContext("2d");
+  return inside;
+}
 
-//     img.onload = () => {
-//       canvas.width = img.width;
-//       canvas.height = img.height;
-//       ctx.drawImage(img, 0, 0);
 
-//       const data = ctx.getImageData(0, 0, img.width, img.height).data;
 
-//       const latSegments = 180;
-//       const lonSegments = 360;
+function LandDotsFromGeoJSON() {
+  const geometryRef = useRef();
 
-//       for (let lat = 0; lat < latSegments; lat++) {
-//         const theta = (lat / latSegments) * Math.PI;
+  useEffect(() => {
+    fetch("/data/land.geojson")
+      .then((res) => res.json())
+      .then((data) => {
+        const positions = [];
+        const radius = 2.65;
 
-//         for (let lon = 0; lon < lonSegments; lon++) {
-//           const phi = (lon / lonSegments) * Math.PI * 2;
+        const STEP = 1.2; // degrees between dots (lower = denser)
 
-//           // Map lat/lon to image coords
-//           const xImg = Math.floor((1 - lon / lonSegments) * img.width);
-//           const yImg = Math.floor((lat / latSegments) * img.height);
+        data.features.forEach((feature) => {
+          const { type, coordinates } = feature.geometry;
 
-//           const idx = (yImg * img.width + xImg) * 4;
-//           const brightness = data[idx]; // red channel
+          const polygons =
+            type === "Polygon"
+              ? [coordinates]
+              : coordinates; // MultiPolygon
 
-//           // Only land (white areas)
-//           if (brightness > 100) {
-//             const x = radius * Math.sin(theta) * Math.cos(phi);
-//             const y = radius * Math.cos(theta);
-//             const z = radius * Math.sin(theta) * Math.sin(phi);
-//             points.push(x, y, z);
-//           }
-//         }
-//       }
+          polygons.forEach((polygon) => {
+            const ring = polygon[0]; // outer boundary
 
-//       g.setAttribute(
-//         "position",
-//         new THREE.Float32BufferAttribute(points, 3)
-//       );
-//     };
+            // bounding box
+            let minLat = 90,
+              maxLat = -90,
+              minLon = 180,
+              maxLon = -180;
 
-//     return g;
-//   }, []);
+            ring.forEach(([lon, lat]) => {
+              minLat = Math.min(minLat, lat);
+              maxLat = Math.max(maxLat, lat);
+              minLon = Math.min(minLon, lon);
+              maxLon = Math.max(maxLon, lon);
+            });
 
-//   // useFrame((_, delta) => {
-//   //   if (pointsRef.current) {
-//   //     pointsRef.current.rotation.y += delta * 0.06;
-//   //   }
-//   // });
+            // for (let lat = minLat; lat <= maxLat; lat += STEP) {
+            //   for (let lon = minLon; lon <= maxLon; lon += STEP) {
+            for (let lat = minLat; lat <= maxLat; lat += STEP) {
+              const lonStep = STEP / Math.cos(THREE.MathUtils.degToRad(lat));
 
-//   return (
-//     <points ref={pointsRef} geometry={geometry}>
-//       <pointsMaterial
-//         size={0.025}
-//         color="#ffffff"
-//         transparent
-//         opacity={0.9}
-//       />
-//     </points>
-//   );
-// }
+              for (let lon = minLon; lon <= maxLon; lon += lonStep) {
 
-function EarthDots() {
-  const pointsRef = useRef();
+                if (pointInPolygon([lon, lat], ring)) {
+                  const [x, y, z] = latLonToVec3(lat, lon, radius);
+                  positions.push(x, y, z);
+                }
+              }
+            }
+          });
+        });
 
-  const geometry = useMemo(() => {
-    const g = new THREE.BufferGeometry();
-    const points = [];
-
-    const radius = 2.6;
-    const img = new Image();
-    img.src = "/textures/earth_mask.png";
-
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
-
-      const data = ctx.getImageData(0, 0, img.width, img.height).data;
-
-      const latSegments = 180;
-      const lonSegments = 360;
-
-      for (let lat = 0; lat < latSegments; lat++) {
-        const theta = (lat / latSegments) * Math.PI;
-
-        for (let lon = 0; lon < lonSegments; lon++) {
-          const phi = (lon / lonSegments) * Math.PI * 2;
-
-          const xImg = Math.floor((1 - lon / lonSegments) * img.width);
-          const yImg = Math.floor((lat / latSegments) * img.height);
-
-          const idx = (yImg * img.width + xImg) * 4;
-          if (data[idx] > 100) {
-            const x = radius * Math.sin(theta) * Math.cos(phi);
-            const y = radius * Math.cos(theta);
-            const z = radius * Math.sin(theta) * Math.sin(phi);
-            points.push(x, y, z);
-          }
-        }
-      }
-
-      g.setAttribute("position", new THREE.Float32BufferAttribute(points, 3));
-    };
-
-    return g;
+        geometryRef.current.setAttribute(
+          "position",
+          new THREE.Float32BufferAttribute(positions, 3)
+        );
+        geometryRef.current.attributes.position.needsUpdate = true;
+      });
   }, []);
 
   return (
-    <points ref={pointsRef} geometry={geometry}>
-      <pointsMaterial size={0.025} color="#ffffff" opacity={0.9} transparent />
+    <points>
+      <bufferGeometry ref={geometryRef} />
+      <pointsMaterial
+        size={0.025}
+        color="#ffffff"
+        opacity={0.9}
+        transparent
+      />
     </points>
   );
 }
 
-
-
-
-/* ------------------ WIREFRAME ------------------ */
-function EarthWireframe() {
-  const wireRef = useRef();
-
-  useFrame((_, delta) => {
-    wireRef.current.rotation.y += delta * 0.08;
-  });
-
-  return (
-    <mesh ref={wireRef}>
-      <sphereGeometry args={[2.6, 32, 32]} />
-      <meshBasicMaterial
-        color="#ffffff"
-        wireframe
-        opacity={0.15}
-        transparent
-      />
-    </mesh>
-  );
-}
-
-function TestInteract() {
-  return (
-    <mesh
-      onPointerDown={() => console.log("DOWN")}
-      onPointerMove={() => console.log("MOVE")}
-    >
-      <sphereGeometry args={[2, 32, 32]} />
-      <meshBasicMaterial wireframe color="white" />
-    </mesh>
-  );
-}
 
 
 /* ------------------ MAIN ------------------ */
@@ -886,17 +416,16 @@ export default function DottedEarth() {
     <div className="earth-layer">
       <Canvas camera={{ position: [0, 0, 6], fov: 55 }}
       eventSource={document.body}
-      eventPrefix="client"
-  >
-    {/* <TestInteract /> */}
+      eventPrefix="client">
         <ambientLight intensity={0.6} />
+
         <DraggableEarth scale={1.15}>
-          <EarthDots />
+          <LandDotsFromGeoJSON />
+          <EarthBorders />
           <LatLongLines />
           <TorontoSpot />
         </DraggableEarth>
-        {/* <EarthWireframe /> */}
-        {/* <LatLongLines /> */}
+
       </Canvas>
     </div>
   );
